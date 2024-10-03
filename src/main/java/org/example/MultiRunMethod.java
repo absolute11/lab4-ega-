@@ -1,37 +1,39 @@
 package org.example;
 
-import org.example.HillClimbing;
-import org.example.HillClimbingBreadth;
-import org.example.MonteCarloMethod;
-import org.example.Result;
-
 import java.util.*;
 
 public class MultiRunMethod {
 
+    // Константа для количества кодировок, выводимых на консоль
+    private static final int DISPLAY_COUNT = 32;
+
     public static void main(String[] args) {
 
-        int L = 7;
+        int L = 7; // Длина кодировки остается 7 для 128 кодировок
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Введите количество шагов (N): ");
+        System.out.print("Введите количество шагов (N): ");
         int N = scanner.nextInt();
 
-        System.out.println("Введите количество запусков (RUNS): ");
+        System.out.print("Введите количество запусков (RUNS): ");
         int RUNS = scanner.nextInt();
 
         // Генерация пространства поиска и ландшафта приспособленности
         List<Integer> searchSpace = generateSearchSpace(L);
         Map<Integer, Double> fitnessMap = generateFitnessMap(searchSpace);
 
-        // Вывод ландшафта приспособленности
-        System.out.println("Ландшафт Приспособленности:");
-        for (Map.Entry<Integer, Double> entry : fitnessMap.entrySet()) {
-            String binaryString = toBinaryString(entry.getKey(), L);
-            System.out.println(binaryString + " (μ = " + String.format("%.2f", entry.getValue()) + ")");
-        }
+        // Выбор 32 уникальных случайных кодировок для вывода
+        List<Integer> displayKeys = selectRandomKeys(fitnessMap.keySet(), DISPLAY_COUNT);
+
+        // Вывод выбранных 32 кодировок с приспособленностью
+        System.out.println("\nЛандшафт Приспособленности (32 из 128 кодировок):");
         System.out.println("-------------------------------------------------------");
+        for (int key : displayKeys) {
+            String binaryString = toBinaryString(key, L);
+            System.out.println(binaryString + " (μ = " + String.format("%.2f", fitnessMap.get(key)) + ")");
+        }
+        System.out.println("-------------------------------------------------------\n");
 
         // Создание экземпляров алгоритмов
         MonteCarloMethod monteCarloMethod = new MonteCarloMethod(L, N, fitnessMap);
@@ -92,7 +94,7 @@ public class MultiRunMethod {
 
     // Метод для генерации ландшафта приспособленности
     private static Map<Integer, Double> generateFitnessMap(List<Integer> space) {
-        Map<Integer, Double> fitness = new HashMap<>();
+        Map<Integer, Double> fitness = new LinkedHashMap<>(); // Используем LinkedHashMap для сохранения порядка
         for (int x : space) {
             fitness.put(x, calculateFitness(x));
         }
@@ -112,5 +114,12 @@ public class MultiRunMethod {
             binary = "0" + binary;
         }
         return binary;
+    }
+
+    // Метод для выбора случайных уникальных ключей из множества
+    private static List<Integer> selectRandomKeys(Set<Integer> keys, int numberOfKeys) {
+        List<Integer> keyList = new ArrayList<>(keys);
+        //Collections.shuffle(keyList);
+        return keyList.subList(0, Math.min(numberOfKeys, keyList.size()));
     }
 }

@@ -56,7 +56,7 @@ public class MonteCarloMethod {
 
 
     private double calculateFitness(int x) {
-        if (x == 0) return 0; // избегаем log(0)
+        if (x == 0) return 0;
         return 5 * Math.sin(x) + Math.log(x);
     }
 }
